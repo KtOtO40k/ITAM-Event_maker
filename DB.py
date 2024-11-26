@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Table, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from fastapi import HTTPException
 
 
 Base = declarative_base()
@@ -40,7 +41,10 @@ class Users(Base):
     number_group = Column(String, nullable=True)
     age = Column(String, nullable=True)
     events = relationship('Event', secondary=user_event_association, back_populates='users')
-
+# модель админов
+class Admins(Base):
+    __tablename__ = 'admins'
+    id = Column(Integer, primary_key=True)
 
 engine = create_engine(
     'sqlite:///C:/Users/co730/PycharmProjects/EventPlanerITAM/.venv/EventPlaner/database.db'
@@ -110,6 +114,20 @@ def join_user_to_event(user_id, event_id):
         if not event:
             return f"Мероприятие с ID {event_id} не найдено."
         event.users.append(user)
+# присвоение пользователю статуса админа
+def user_to_admin(user_id):
+    with get_session() as session:
+        new_admin = Admins(id = user_id)
+        session.add(new_admin)
+# прорверка админ ли юзер
+def read_admin_or_not(user_id):
+    with get_session() as session:
+        admin = session.query(Admins).filter(Admins.id == user_id).first()
+        if not admin:
+            raise HTTPException(status_code=404)
+            return f"Пользователь с ID {user_id} не является администратором."
+        raise HTTPException(status_code=200)
+
 
 #Event.__table__.drop(engine)
 #Users.__table__.drop(engine)

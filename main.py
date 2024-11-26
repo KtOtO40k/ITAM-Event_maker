@@ -1,4 +1,5 @@
-from EventPlaner.DB import create_event, read_user_events, join_user_to_event, read_event_users
+from EventPlaner.DB import create_event, read_user_events, join_user_to_event, read_event_users, user_to_admin, \
+    read_admin_or_not
 from EventPlaner.DB import create_user
 from EventPlaner.RandomServise import event_id_make
 from fastapi import FastAPI
@@ -38,6 +39,12 @@ def ReadUserEvents(user_id: int):
 @app.get("/read_event_users")
 def ReadEventUsers(event_id: str):
     return read_event_users(event_id)
+@app.post("/user_to_admin")
+def UserToAdmin(user_id: int):
+    user_to_admin(user_id)
+@app.get("/read_admin_or_not")
+def ReadAdminOrNot(user_id: int):
+    return read_admin_or_not(user_id)
     
 
 
